@@ -1,37 +1,35 @@
-const { Builder, Browser, By, Key, until } = require('selenium-webdriver');
-const { Logger } = require('selenium-webdriver/lib/logging');
+import { Builder, Browser, By } from "selenium-webdriver"
+import dotenv from 'dotenv';
 
-const url = 'http://testphp.vulnweb.com/'
-const set = new Set()
-const queue = [url]
+dotenv.config();
 
 
-async function init() {
-    let driver = await new Builder().forBrowser(Browser.CHROME).build();
+const uniqueLinks = new Set()
+const queue = [process.env.WEBSITE_URL]
+
+const init = async () => {
+    let driver = await new Builder().forBrowser(Browser.CHROME).build()
+
+    //BFS
     try {
-
-
+        let counter = 0
         while (queue.length > 0) {
             let target = queue.shift()
-            await driver.get(target);
-            let anchorTags = await driver.findElements(By.css('a'))
+            await driver.get(target)
+            let anchorTags = await driver.findElements(By.css("a"))
             for (const anchor of anchorTags) {
-                let link = await anchor.getAttribute('href')
-                if (link.startsWith(target) && !set.has(link)) {
-                    set.add(link)
+                let link = await anchor.getAttribute("href")
+                if (link.startsWith(target) && !uniqueLinks.has(link)) {
+                    uniqueLinks.add(link)
                     queue.push(link)
-                    console.log(link);
+                    console.log(++counter, link)
                 }
             }
         }
-
-
-    }
-    catch (e) {
-        console.log(e);
-    }
-    finally {
-        await driver.quit();
+    } catch (e) {
+        console.log(e)
+    } finally {
+        await driver.quit()
     }
 }
 

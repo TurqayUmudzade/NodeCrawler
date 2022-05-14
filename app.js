@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
+const domain = process.env.WEBSITE_URL
 const uniqueLinks = new Set()
-const queue = [process.env.WEBSITE_URL]
+const queue = [domain]
 
 const init = async () => {
     let driver = await new Builder().forBrowser(Browser.CHROME).build()
@@ -19,7 +19,7 @@ const init = async () => {
             let anchorTags = await driver.findElements(By.css("a"))
             for (const anchor of anchorTags) {
                 let link = await anchor.getAttribute("href")
-                if (link.startsWith(target) && !uniqueLinks.has(link)) {
+                if (link && link.startsWith(domain) && !uniqueLinks.has(link)) {
                     uniqueLinks.add(link)
                     queue.push(link)
                     console.log(++counter, link)
